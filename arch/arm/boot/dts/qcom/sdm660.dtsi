@@ -308,7 +308,7 @@
                                         dev = "/dev/block/platform/soc/c0c4000.sdhci/by-name/system";
                                         type = "ext4";
                                         mnt_flags = "ro,barrier=1,discard";
-                                        fsmgr_flags = "wait,verify";
+                                        fsmgr_flags = "wait";
                                         status = "ok";
                                 };
 				vendor {
@@ -316,7 +316,7 @@
 					dev = "/dev/block/platform/soc/c0c4000.sdhci/by-name/vendor";
 					type = "ext4";
 					mnt_flags = "ro,barrier=1,discard";
-					fsmgr_flags = "wait,verify";
+					fsmgr_flags = "wait";
 					status = "ok";
 				};
 			};
@@ -408,7 +408,7 @@
 			alloc-ranges = <0 0x00000000 0 0xffffffff>;
 			reusable;
 			alignment = <0 0x400000>;
-			size = <0 0x2c00000>;
+			size = <0 0x4000000>;
 			linux,cma-default;
 		};
 
@@ -840,7 +840,7 @@
 	qcom,msm-thermal {
 		compatible = "qcom,msm-thermal";
 		qcom,sensor-id = <1>;
-		qcom,poll-ms = <100>;
+		qcom,poll-ms = <200>;
 		qcom,therm-reset-temp = <115>;
 		qcom,core-limit-temp = <70>;
 		qcom,core-temp-hysteresis = <10>;
@@ -909,8 +909,8 @@
 	qcom,msm-core@780000 {
 		compatible = "qcom,apss-core-ea";
 		reg = <0x780000 0x1000>;
-		qcom,low-hyst-temp = <100>;
-		qcom,high-hyst-temp = <100>;
+		qcom,low-hyst-temp = <10>;
+		qcom,high-hyst-temp = <5>;
 
 		ea0: ea0 {
 			sensor = <&sensor_information1>;
@@ -1107,7 +1107,7 @@
 			< 588000000 5>,  /* NOM    */
 			< 647000000 6>,  /* NOM_L1 */
 			< 700000000 7>,  /* TURBO */
-			< 750000000 7>;  /* TURBO  */
+			< 750000000 8>;  /* TURBO  */
 		#clock-cells = <1>;
 		#reset-cells = <1>;
 	};
@@ -1315,7 +1315,8 @@
 			<  1113600000 0x0404003a 0x052e002e 0x2 4 >,
 			<  1401600000 0x04040049 0x073a003a 0x2 5 >,
 			<  1536000000 0x04040050 0x08400040 0x2 6 >,
-			<  1612800000 0x04040054 0x09430043 0x2 7 >;
+			<  1747200000 0x0404005b 0x09480048 0x2 7 >,
+			<  1843200000 0x04040060 0x094c004c 0x3 8 >;
 
 		qcom,pwrcl-speedbin4-v0 =
 			<   300000000 0x0004000f 0x01200020 0x1 1 >,
@@ -1343,21 +1344,25 @@
 			<  1747200000 0x0404005b 0x09480048 0x2 4 >,
 			<  1958400000 0x04040066 0x0a510051 0x2 5 >,
 			<  2150400000 0x04040070 0x0b590059 0x2 6 >,
-			<  2208000000 0x04040073 0x0b5c005c 0x3 7 >;
+			<  2457600000 0x04040080 0x0c660066 0x3 7 >;
 
 		qcom,perfcl-speedbin3-v0 =
 			<   300000000 0x0004000f 0x01200020 0x1 1 >,
 			<  1113600000 0x0404003a 0x052e002e 0x1 2 >,
 			<  1401600000 0x04040049 0x073a003a 0x2 3 >,
 			<  1747200000 0x0404005b 0x09480048 0x2 4 >,
-			<  1804800000 0x0404005e 0x094b004b 0x2 5 >;
+			<  1958400000 0x04040066 0x0a510051 0x2 5 >,
+			<  2150400000 0x04040070 0x0b590059 0x2 6 >,
+			<  2457600000 0x04040080 0x0c660066 0x3 7 >;
 
 		qcom,perfcl-speedbin4-v0 =
 			<   300000000 0x0004000f 0x01200020 0x1 1 >,
 			<  1113600000 0x0404003a 0x052e002e 0x1 2 >,
 			<  1401600000 0x04040049 0x073a003a 0x2 3 >,
 			<  1747200000 0x0404005b 0x09480048 0x2 4 >,
-			<  1958400000 0x04040066 0x0a510051 0x2 5 >;
+			<  1958400000 0x04040066 0x0a510051 0x2 5 >,
+			<  2150400000 0x04040070 0x0b590059 0x2 6 >,
+			<  2457600000 0x04040080 0x0c660066 0x3 7 >;
 
 		qcom,up-timer = <1000 1000>;
 		qcom,down-timer = <1000 1000>;

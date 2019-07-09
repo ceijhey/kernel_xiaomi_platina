@@ -235,7 +235,7 @@
 &pm660_haptics {
        status = "okay";
        qcom,wave-play-rate-us = <4878>;
-       qcom,vmax-mv = <3100>;
+       qcom,vmax-mv = <3000>;
        qcom,wave-shape = "sine";
        qcom,lra-auto-res-mode = "qwd";
        qcom,lra-res-cal-period = <4>;
