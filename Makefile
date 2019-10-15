@@ -3,7 +3,6 @@ PATCHLEVEL = 4
 SUBLEVEL = 208
 EXTRAVERSION =
 NAME = Blurry Fish Butt
-
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
 # More info can be located in ./README
@@ -305,7 +304,6 @@ HOSTCC       = gcc
 HOSTCXX      = g++
 HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
 HOSTCXXFLAGS = -O2
-
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
 
