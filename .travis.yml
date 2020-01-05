@@ -1,0 +1,22 @@
+dist: Bionic
+notifications:
+  webhooks: https://fathomless-fjord-24024.herokuapp.com/notify
+script: | 
+  sudo apt-get install flex bison build-essential zip zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 libx11-dev ccache libgl1-mesa-dev libxml2-utils xsltproc bc imagemagick libssl-dev mc libncurses5 python
+  git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 -b lineage-17.0 ~/gcc
+  make O=out ARCH=arm64 platina_defconfig
+  make -j8 O=out ARCH=arm64 CROSS_COMPILE=~/gcc/bin/aarch64-linux-android-
+  git clone https://github.com/RomashkaGang/AnyKernel3 ~/kernel_done
+  cp out/arch/arm64/boot/Image.gz-dtb ~/kernel_done 
+  cd ~/kernel_done 
+  result1=$(date +"%m%d%y")
+  result2=$(date +"%H%M")
+  zip HMP-kernel-$result1-$result2.zip * -x .git
+  echo $result1 >> path1.txt
+  echo $result2 >> path2.txt	
+  wget https://raw.githubusercontent.com/povidev/publishbot/master/main.py
+  sudo apt install python3-pip
+  pip3 install setuptools --user 
+  pip3 install pytelegrambotapi --user
+  python3 main.py
+
