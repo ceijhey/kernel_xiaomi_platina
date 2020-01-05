@@ -12,7 +12,7 @@ script: |
     cd ~/kernel_done 
     result1=$(date +"%m%d%y")
     result2=$(date +"%H%M")
-    zip HMP-kernel-$result1-$result2.zip * -x .git
+    zip -r9 HMP-kernel-$result1-$result2.zip * -x .git HMP-kernel-$result1-$result2.zip
   fi  
   echo $result1 >> path1.txt
   echo $result2 >> path2.txt	
