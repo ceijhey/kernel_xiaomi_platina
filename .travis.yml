@@ -13,6 +13,7 @@ script: |
     result1=$(date +"%m%d%y")
     result2=$(date +"%H%M")
     zip HMP-kernel-$result1-$result2.zip * -x .git
+  fi  
   echo $result1 >> path1.txt
   echo $result2 >> path2.txt	
   wget https://raw.githubusercontent.com/povidev/publishbot/master/main.py
