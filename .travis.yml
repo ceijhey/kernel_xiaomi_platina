@@ -22,6 +22,6 @@ script: |
     zip -r9 $FILENAME * -x .git $FILENAME
   fi
 after_success: |
-  python3 PublishBot/main.py --after
+  python3 /home/travis/PublishBot/main.py --after
 after_failure: |
-  python3 PublishBot/main.py --after
+  python3 /home/travis/PublishBot/main.py --after
