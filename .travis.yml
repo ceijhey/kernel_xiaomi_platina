@@ -21,9 +21,7 @@ script: |
     export FILENAME="HMP-kernel-$(date +"%m%d%y")-$(date +"%H%M").zip"
     zip -r9 $FILENAME * -x .git $FILENAME
   fi
-deploy:
-  skip_cleanup: true
-  provider: script
-  script: python3 PublishBot/main.py --after
-  on:
-    all_branches: true
+after_success: |
+  python3 PublishBot/main.py --after
+after_failure: |
+  python3 PublishBot/main.py --after
