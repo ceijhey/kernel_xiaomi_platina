@@ -9,7 +9,7 @@ install: |
   git clone https://github.com/RomashkaGang/PublishBot ~/PublishBot
   pip3 install --user -r /home/travis/PublishBot/requirements.txt
 before_script: |
-  python3 PublishBot/main.py --before
+  python3 /home/travis/PublishBot/main.py --before
 script: |
   make O=out ARCH=arm64 platina_defconfig
   make -j8 O=out ARCH=arm64 CROSS_COMPILE=~/gcc/bin/aarch64-linux-android-
