@@ -26,5 +26,4 @@ deploy:
   provider: script
   script: python3 PublishBot/main.py --after
   on:
-    tags: true
     all_branches: true
