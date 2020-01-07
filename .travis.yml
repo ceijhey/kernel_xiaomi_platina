@@ -10,6 +10,9 @@ install: |
   pip3 install --user -r /home/travis/PublishBot/requirements.txt
 before_script: |
   python3 /home/travis/PublishBot/main.py --before
+  export FILENAME="HMP-kernel-$(date +"%m%d%y")-$(date +"%H%M")"
+  sed "s#-HMP-kernel#-$(FILENAME)-GCC-Q#g"
+  export FILENAME="$(FILENAME).zip"
 script: |
   make O=out ARCH=arm64 platina_defconfig
   make -j8 O=out ARCH=arm64 CROSS_COMPILE=~/gcc/bin/aarch64-linux-android-
@@ -17,7 +20,6 @@ script: |
   if [ -f "out/arch/arm64/boot/Image.gz-dtb" ]; then
     cp out/arch/arm64/boot/Image.gz-dtb ~/kernel_done
     cd ~/kernel_done
-    export FILENAME="HMP-kernel-$(date +"%m%d%y")-$(date +"%H%M").zip"
     zip -r9 $FILENAME * -x .git $FILENAME
   fi
 after_success: |
