@@ -11,8 +11,8 @@ install: |
 before_script: |
   python3 /home/travis/PublishBot/main.py --before
   export FILENAME="HMP-kernel-$(date +"%m%d%y")-$(date +"%H%M")"
-  sed "s#-HMP-kernel#-$(FILENAME)-GCC-Q#g"
-  export FILENAME="$(FILENAME).zip"
+  sed -i "s#-HMP-kernel#-$FILENAME-GCC-Q#g" arch/arm64/configs/platina_defconfig
+  export FILENAME="$FILENAME.zip"
 script: |
   make O=out ARCH=arm64 platina_defconfig
   make -j8 O=out ARCH=arm64 CROSS_COMPILE=~/gcc/bin/aarch64-linux-android-
