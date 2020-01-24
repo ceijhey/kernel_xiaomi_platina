@@ -2,7 +2,8 @@
 ```
 stable-ten: current stable branch
 eas-ten: EAS
-ten: staging branch
+ten: HMP staging branch
+pie: stable branch with merged pie CAF tags
 ```
 
 ## About device
