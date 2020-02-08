@@ -10,7 +10,6 @@ install: |
   pip3 install --user -r /home/travis/PublishBot/requirements.txt
 before_script: |
   python3 /home/travis/PublishBot/main.py --before
-<<<<<<< HEAD
   export FILENAME="HMP-stable-kernel-$(date +"%y%m%d")-$(date +"%H%M")"
   sed -i "s#-HMP-kernel#-$FILENAME-GCC-Q#g" arch/arm64/configs/platina_defconfig
   export FILENAME="$FILENAME.zip"
