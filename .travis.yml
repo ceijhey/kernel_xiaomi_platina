@@ -5,7 +5,7 @@ env:
   - product_filename="*-kernel-*.zip" chat_id="-1001115967921"
 install: |
   sudo apt-get install python3-setuptools python3-pip git flex bison build-essential zip zlib1g-dev gcc-aarch64-linux-gnu libc6-dev-i386 libx11-dev ccache libgl1-mesa-dev libxml2-utils xsltproc bc imagemagick libssl-dev mc libncurses5 python
-  git clone https://github.com/RomashkaGang/clang.git ~/clang
+  git clone https://github.com/Nicklas373/aosp-clang.git -b r377782 ~/clang
   git clone https://github.com/RomashkaGang/PublishBot ~/PublishBot
   pip3 install --user -r /home/travis/PublishBot/requirements.txt
 before_script: |
@@ -15,7 +15,7 @@ before_script: |
   export FILENAME="$FILENAME.zip"
 script: |
   make O=out ARCH=arm64 platina_defconfig
-  make -j8 O=out ARCH=arm64 CC=~/clang/bin/clang CROSS_COMPILE=aarch64-linux-gnu-
+  make -j8 O=out ARCH=arm64 CC=~/clang/bin/clang-10 CROSS_COMPILE=aarch64-linux-gnu-
   git clone https://github.com/RomashkaGang/AnyKernel3 ~/kernel_done
   if [ -f "out/arch/arm64/boot/Image.gz-dtb" ]; then
     cp out/arch/arm64/boot/Image.gz-dtb ~/kernel_done
