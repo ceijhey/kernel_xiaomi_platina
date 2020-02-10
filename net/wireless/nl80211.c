@@ -8638,7 +8638,6 @@ static int nl80211_connect(struct sk_buff *skb, struct genl_info *info)
 
 	if (nla_get_flag(info->attrs[NL80211_ATTR_EXTERNAL_AUTH_SUPPORT])) {
 		if (!info->attrs[NL80211_ATTR_SOCKET_OWNER]) {
-			kzfree(connkeys);
 			return -EINVAL;
 		}
 		connect.flags |= CONNECT_REQ_EXTERNAL_AUTH_SUPPORT;
@@ -11220,12 +11219,10 @@ static int nl80211_external_auth(struct sk_buff *skb, struct genl_info *info)
 	struct net_device *dev = info->user_ptr[1];
 	struct cfg80211_external_auth_params params;
 
-	if (!rdev->ops->external_auth)
+	if (rdev->ops->external_auth)
 		return -EOPNOTSUPP;
 
-	if (!info->attrs[NL80211_ATTR_SSID] &&
-	    dev->ieee80211_ptr->iftype != NL80211_IFTYPE_AP &&
-	    dev->ieee80211_ptr->iftype != NL80211_IFTYPE_P2P_GO)
+	if (!info->attrs[NL80211_ATTR_SSID])
 		return -EINVAL;
 
 	if (!info->attrs[NL80211_ATTR_BSSID])
@@ -11236,50 +11233,19 @@ static int nl80211_external_auth(struct sk_buff *skb, struct genl_info *info)
 
 	memset(&params, 0, sizeof(params));
 
-	if (info->attrs[NL80211_ATTR_SSID]) {
-		params.ssid.ssid_len = nla_len(info->attrs[NL80211_ATTR_SSID]);
-		if (params.ssid.ssid_len == 0 ||
-		    params.ssid.ssid_len > IEEE80211_MAX_SSID_LEN)
-			return -EINVAL;
-		memcpy(params.ssid.ssid,
-		       nla_data(info->attrs[NL80211_ATTR_SSID]),
-		       params.ssid.ssid_len);
-	}
+	params.ssid.ssid_len = nla_len(info->attrs[NL80211_ATTR_SSID]);
+	if (params.ssid.ssid_len == 0 ||
+	    params.ssid.ssid_len > IEEE80211_MAX_SSID_LEN)
+		return -EINVAL;
+	memcpy(params.ssid.ssid, nla_data(info->attrs[NL80211_ATTR_SSID]),
+	       params.ssid.ssid_len);
 
 	memcpy(params.bssid, nla_data(info->attrs[NL80211_ATTR_BSSID]),
 	       ETH_ALEN);
 
 	params.status = nla_get_u16(info->attrs[NL80211_ATTR_STATUS_CODE]);
 
-	if (info->attrs[NL80211_ATTR_PMKID])
-		params.pmkid = nla_data(info->attrs[NL80211_ATTR_PMKID]);
-
 	return rdev_external_auth(rdev, dev, &params);
-}
-
-static int nl80211_update_owe_info(struct sk_buff *skb, struct genl_info *info)
-{
-	struct cfg80211_registered_device *rdev = info->user_ptr[0];
-	struct cfg80211_update_owe_info owe_info;
-	struct net_device *dev = info->user_ptr[1];
-
-	if (!rdev->ops->update_owe_info)
-		return -EOPNOTSUPP;
-
-	if (!info->attrs[NL80211_ATTR_STATUS_CODE] ||
-	    !info->attrs[NL80211_ATTR_MAC])
-		return -EINVAL;
-
-	memset(&owe_info, 0, sizeof(owe_info));
-	owe_info.status = nla_get_u16(info->attrs[NL80211_ATTR_STATUS_CODE]);
-	nla_memcpy(owe_info.peer, info->attrs[NL80211_ATTR_MAC], ETH_ALEN);
-
-	if (info->attrs[NL80211_ATTR_IE]) {
-		owe_info.ie = nla_data(info->attrs[NL80211_ATTR_IE]);
-		owe_info.ie_len = nla_len(info->attrs[NL80211_ATTR_IE]);
-	}
-
-	return rdev_update_owe_info(rdev, dev, &owe_info);
 }
 
 #define NL80211_FLAG_NEED_WIPHY		0x01
@@ -12120,13 +12086,6 @@ static const struct genl_ops nl80211_ops[] = {
 		.cmd = NL80211_CMD_EXTERNAL_AUTH,
 		.doit = nl80211_external_auth,
 		.policy = nl80211_policy,
-		.flags = GENL_ADMIN_PERM,
-		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP |
-				  NL80211_FLAG_NEED_RTNL,
-	},
-	{
-		.cmd = NL80211_CMD_UPDATE_OWE_INFO,
-		.doit = nl80211_update_owe_info,
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP |
 				  NL80211_FLAG_NEED_RTNL,
@@ -14129,46 +14088,6 @@ int cfg80211_external_auth_request(struct net_device *dev,
 	return -ENOBUFS;
 }
 EXPORT_SYMBOL(cfg80211_external_auth_request);
-
-void cfg80211_update_owe_info_event(struct net_device *netdev,
-				    struct cfg80211_update_owe_info *owe_info,
-				    gfp_t gfp)
-{
-	struct wiphy *wiphy = netdev->ieee80211_ptr->wiphy;
-	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wiphy);
-	struct sk_buff *msg;
-	void *hdr;
-
-	trace_cfg80211_update_owe_info_event(wiphy, netdev, owe_info);
-
-	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, gfp);
-	if (!msg)
-		return;
-
-	hdr = nl80211hdr_put(msg, 0, 0, 0, NL80211_CMD_UPDATE_OWE_INFO);
-	if (!hdr)
-		goto nla_put_failure;
-
-	if (nla_put_u32(msg, NL80211_ATTR_WIPHY, rdev->wiphy_idx) ||
-	    nla_put_u32(msg, NL80211_ATTR_IFINDEX, netdev->ifindex) ||
-	    nla_put(msg, NL80211_ATTR_MAC, ETH_ALEN, owe_info->peer))
-		goto nla_put_failure;
-
-	if (!owe_info->ie_len ||
-	    nla_put(msg, NL80211_ATTR_IE, owe_info->ie_len, owe_info->ie))
-		goto nla_put_failure;
-
-	genlmsg_end(msg, hdr);
-
-	genlmsg_multicast_netns(&nl80211_fam, wiphy_net(&rdev->wiphy), msg, 0,
-				NL80211_MCGRP_MLME, gfp);
-	return;
-
-nla_put_failure:
-	genlmsg_cancel(msg, hdr);
-	nlmsg_free(msg);
-}
-EXPORT_SYMBOL(cfg80211_update_owe_info_event);
 
 /* initialisation/exit functions */
 

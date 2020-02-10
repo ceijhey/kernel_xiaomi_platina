@@ -1,5 +1,4 @@
-/* Copyright (c) 2008-2018, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
+/* Copyright (c) 2008-2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -810,10 +809,7 @@ struct mdss_panel_info {
 	u32 tp_rst_seq_len;
 	u32 vic; /* video identification code */
 	u32 deep_color;
-	u32 esd_err_irq_gpio;
-	u32 esd_err_irq;
-	u32 esd_interrupt_flags;
-	struct mdss_panel_esd_check initial_esd_check;
+	bool is_ce_mode; /* CE video format */
 	struct mdss_rect roi;
 	struct mdss_dsi_dual_pu_roi dual_roi;
 	int pwm_pmic_gpio;

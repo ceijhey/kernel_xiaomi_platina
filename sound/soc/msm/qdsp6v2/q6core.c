@@ -258,38 +258,7 @@ static int32_t aprv2_core_fn_q(struct apr_client_data *data, void *priv)
 		q6core_lcl.bus_bw_resp_received = 1;
 		wake_up(&q6core_lcl.bus_bw_req_wait);
 		break;
-	case AVCS_GET_VERSIONS_RSP:
-		if (data->payload_size < 4 * sizeof(uint32_t)) {
-			pr_err("%s: payload has invalid size %d\n",
-				__func__, data->payload_size);
-			return -EINVAL;
-		}
-		payload1 = data->payload;
-		pr_debug("%s: Received ADSP version response[3]0x%x\n",
-					 __func__, payload1[3]);
-		q6core_lcl.cmd_resp_received_flag =
-						FLAG_AVCS_GET_VERSIONS_RESULT;
-		if (payload1[3] ==  AVCS_CMDRSP_Q6_ID_2_6) {
-			q6core_lcl.q6_core_avs_version = Q6_SUBSYS_AVS2_6;
-			pr_debug("%s: Received ADSP version as 2.6\n",
-							 __func__);
-		} else if (payload1[3] ==  AVCS_CMDRSP_Q6_ID_2_7) {
-			q6core_lcl.q6_core_avs_version = Q6_SUBSYS_AVS2_7;
-			pr_debug("%s: Received ADSP version as 2.7\n",
-							 __func__);
-		} else if (payload1[3] == AVCS_CMDRSP_Q6_ID_2_8) {
-			q6core_lcl.q6_core_avs_version = Q6_SUBSYS_AVS2_8;
-			pr_info("%s: Received ADSP version as 2.8\n",
-							 __func__);
-		} else {
-			pr_err("%s: ADSP version is neither 2.6 nor 2.7\n",
-							 __func__);
-			q6core_lcl.q6_core_avs_version = Q6_SUBSYS_INVALID;
-		}
-		wake_up(&q6core_lcl.cmd_req_wait);
-		break;
-
-	 case AVCS_CMDRSP_GET_LICENSE_VALIDATION_RESULT:
+	case AVCS_CMDRSP_GET_LICENSE_VALIDATION_RESULT:
 		if (data->payload_size < sizeof(uint32_t)) {
 			pr_err("%s: payload has invalid size %d\n",
 				__func__, data->payload_size);

@@ -75,7 +75,7 @@ module_param(qmi_timeout, ulong, 0600);
 
 #define ICNSS_MAX_PROBE_CNT		2
 
-#define PROBE_TIMEOUT			15000
+#define PROBE_TIMEOUT			5000
 
 #define icnss_ipc_log_string(_x...) do {				\
 	if (icnss_ipc_log_context)					\
@@ -305,7 +305,6 @@ enum icnss_driver_state {
 	ICNSS_REJUVENATE,
 	ICNSS_BLOCK_SHUTDOWN,
 	ICNSS_PDR,
-	ICNSS_MODEM_CRASHED,
 };
 
 struct ce_irq_list {
@@ -2310,7 +2309,6 @@ static int icnss_pd_restart_complete(struct icnss_priv *priv)
 	icnss_call_driver_shutdown(priv);
 
 	clear_bit(ICNSS_PDR, &priv->state);
-	clear_bit(ICNSS_MODEM_CRASHED, &priv->state);
 	clear_bit(ICNSS_REJUVENATE, &priv->state);
 	clear_bit(ICNSS_PD_RESTART, &priv->state);
 	priv->is_ssr = false;
@@ -2701,14 +2699,11 @@ static int icnss_modem_notifier_nb(struct notifier_block *nb,
 
 	priv->is_ssr = true;
 
-	if (notif->crashed)
-		set_bit(ICNSS_MODEM_CRASHED, &priv->state);
-
 	if (code == SUBSYS_BEFORE_SHUTDOWN && !notif->crashed &&
 	    test_bit(ICNSS_BLOCK_SHUTDOWN, &priv->state)) {
 		if (!wait_for_completion_timeout(&priv->unblock_shutdown,
-				msecs_to_jiffies(PROBE_TIMEOUT)))
-			icnss_pr_err("modem block shutdown timeout\n");
+						 PROBE_TIMEOUT))
+			icnss_pr_err("wlan driver probe timeout\n");
 	}
 
 	if (code == SUBSYS_BEFORE_SHUTDOWN && !notif->crashed) {
@@ -3642,7 +3637,6 @@ int icnss_trigger_recovery(struct device *dev)
 		goto out;
 	}
 
-	WARN_ON(1);
 	icnss_pr_warn("Initiate PD restart at WLAN FW, state: 0x%lx\n",
 		      priv->state);
 
@@ -4158,10 +4152,6 @@ static int icnss_stats_show_state(struct seq_file *s, struct icnss_priv *priv)
 			continue;
 		case ICNSS_PDR:
 			seq_puts(s, "PDR TRIGGERED");
-			continue;
-		case ICNSS_MODEM_CRASHED:
-			seq_puts(s, "MODEM CRASHED");
-			continue;
 		}
 
 		seq_printf(s, "UNKNOWN-%d", i);

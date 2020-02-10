@@ -3168,14 +3168,6 @@ static int msm_pcm_probe(struct platform_device *pdev)
 		pdata->perf_mode = LEGACY_PCM_MODE;
 	}
 
-	if (of_property_read_bool(pdev->dev.of_node,
-				"qcom,avs-version"))
-		pdata->avs_ver = true;
-	else
-		pdata->avs_ver = false;
-
-	pr_debug("%s: avs_ver = %d\n", __func__, pdata->avs_ver);
-
 	mutex_init(&pdata->lock);
 	dev_set_drvdata(&pdev->dev, pdata);
 
