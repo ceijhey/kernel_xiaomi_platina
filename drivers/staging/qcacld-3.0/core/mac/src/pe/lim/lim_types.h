@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2019 The Linux Foundation. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -749,6 +749,8 @@ lim_post_sme_message(tpAniSirGlobal pMac, uint32_t msgType, uint32_t *pMsgBuf)
 	msg.bodyptr = pMsgBuf;
 	msg.bodyval = 0;
 	if (msgType > eWNI_SME_MSG_TYPES_BEGIN) {
+		MTRACE(mac_trace(pMac, TRACE_CODE_TX_SME_MSG, NO_SESSION,
+				 msg.type));
 		lim_process_sme_req_messages(pMac, &msg);
 	} else {
 		lim_process_mlm_rsp_messages(pMac, msgType, pMsgBuf);
@@ -792,6 +794,7 @@ lim_post_mlm_message(tpAniSirGlobal pMac, uint32_t msgType, uint32_t *pMsgBuf)
 	msg.type = (uint16_t) msgType;
 	msg.bodyptr = pMsgBuf;
 	msg.bodyval = 0;
+	MTRACE(mac_trace_msg_rx(pMac, NO_SESSION, msg.type));
 	lim_process_mlm_req_messages(pMac, &msg);
 } /*** end lim_post_mlm_message() ***/
 
@@ -1025,4 +1028,16 @@ void lim_process_assoc_failure_timeout(tpAniSirGlobal mac_ctx,
 void lim_send_mgmt_frame_tx(tpAniSirGlobal mac_ctx,
 		uint32_t *msg_buf);
 
+/**
+ * lim_p2p_check_oui_and_force_1x1() - Function to get P2P client device
+ * attributes from assoc request frame IE passed in.
+ * @mac_ctx: Pointer to mac_context
+ * @assoc_ie: Pointer to IE in association request
+ * @assoc_ie_len: Total association IE length
+ *
+ * Return: True if OUI is found. Else return false
+ *
+ */
+bool lim_p2p_check_oui_and_force_1x1(tpAniSirGlobal mac_ctx,
+				     uint8_t *assoc_ie, uint32_t assoc_ie_len);
 #endif /* __LIM_TYPES_H */

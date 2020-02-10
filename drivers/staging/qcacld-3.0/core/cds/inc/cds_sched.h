@@ -43,6 +43,7 @@
 #include "cds_config.h"
 #include "cds_reg_service.h"
 #include "qdf_cpuhp.h"
+#include "ol_txrx.h"
 
 #define TX_POST_EVENT               0x001
 #define TX_SUSPEND_EVENT            0x002
@@ -90,7 +91,8 @@ typedef void (*cds_ol_rx_thread_cb)(void *context, void *rxpkt, uint16_t staid);
 typedef void (*cds_ol_mon_thread_cb)(
 			void *context, void *monpkt,
 			uint8_t vdev_id, uint8_t tid,
-			uint8_t status, bool pkt_format);
+			struct ol_mon_tx_status pkt_tx_status,
+			bool pkt_format);
 
 typedef int (*send_mode_change_event_cb)(void);
 
@@ -140,7 +142,7 @@ struct cds_ol_mon_pkt {
 	uint8_t tid;
 
 	/* Tx packet status */
-	uint8_t status;
+	struct ol_mon_tx_status pkt_tx_status;
 
 	/* 0 = 802.3 format , 1 = 802.11 format */
 	bool pkt_format;
@@ -376,6 +378,7 @@ typedef struct _cds_context_type {
 	qdf_event_t connection_update_done_evt;
 	qdf_mutex_t qdf_conc_list_lock;
 	qdf_mc_timer_t dbs_opportunistic_timer;
+	qdf_event_t opportunistic_update_done_evt;
 #ifdef FEATURE_WLAN_MCC_TO_SCC_SWITCH
 	void (*sap_restart_chan_switch_cb)(struct hdd_adapter_s *,
 					   uint32_t, uint32_t);

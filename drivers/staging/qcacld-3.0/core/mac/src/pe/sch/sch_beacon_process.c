@@ -391,6 +391,10 @@ sch_bcn_process_sta(tpAniSirGlobal mac_ctx,
 		lim_send_set_dtim_period(mac_ctx, bcn->tim.dtimPeriod,
 				session);
 	}
+	MTRACE(mac_trace(mac_ctx, TRACE_CODE_RX_MGMT_TSF,
+	       session->peSessionId, bcn->timeStamp[0]);)
+	MTRACE(mac_trace(mac_ctx, TRACE_CODE_RX_MGMT_TSF,
+	       session->peSessionId, bcn->timeStamp[1]);)
 
 	/* Read beacon interval session Entry */
 	bi = session->beaconParams.beaconInterval;
@@ -972,7 +976,8 @@ sch_beacon_edca_process(tpAniSirGlobal pMac, tSirMacEdcaParamSetIE *edca,
 	session->gLimEdcaParams[EDCA_AC_VI] = edca->acvi;
 	session->gLimEdcaParams[EDCA_AC_VO] = edca->acvo;
 
-	if (pMac->roam.configParam.enable_edca_params) {
+	if (pMac->roam.configParam.enable_edca_params &&
+	    !pMac->follow_ap_edca) {
 		session->gLimEdcaParams[EDCA_AC_VO].aci.aifsn =
 			pMac->roam.configParam.edca_vo_aifs;
 		session->gLimEdcaParams[EDCA_AC_VI].aci.aifsn =

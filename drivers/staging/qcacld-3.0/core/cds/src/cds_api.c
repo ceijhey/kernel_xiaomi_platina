@@ -1180,7 +1180,7 @@ void *cds_get_context(QDF_MODULE_ID moduleId)
 	}
 
 	if (pModContext == NULL) {
-		QDF_TRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_ERROR,
+		QDF_TRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_DEBUG,
 			  "%s: Module ID %i context is Null", __func__,
 			  moduleId);
 	}
@@ -2750,7 +2750,11 @@ void cds_svc_fw_shutdown_ind(struct device *dev)
 inline void cds_pkt_stats_to_logger_thread(void *pl_hdr, void *pkt_dump,
 						void *data)
 {
-	return;
+	if (cds_get_ring_log_level(RING_ID_PER_PACKET_STATS) !=
+						WLAN_LOG_LEVEL_ACTIVE)
+		return;
+
+	wlan_pkt_stats_to_logger_thread(pl_hdr, pkt_dump, data);
 }
 
 /**

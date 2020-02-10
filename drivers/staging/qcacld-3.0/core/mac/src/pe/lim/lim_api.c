@@ -63,8 +63,6 @@
 #include "cds_concurrency.h"
 #include "nan_datapath.h"
 
-#define NO_SESSION 0xFF
-
 static void __lim_init_scan_vars(tpAniSirGlobal pMac)
 {
 	pMac->lim.gLimUseScanModeForLearnMode = 1;
@@ -166,6 +164,8 @@ static void __lim_init_states(tpAniSirGlobal pMac)
 	pMac->lim.gLimPrevSmeState = eLIM_SME_OFFLINE_STATE;
 
 	/* / MLM State visible across all Sirius modules */
+	MTRACE(mac_trace
+		       (pMac, TRACE_CODE_MLM_STATE, NO_SESSION, eLIM_MLM_IDLE_STATE));
 	pMac->lim.gLimMlmState = eLIM_MLM_IDLE_STATE;
 
 	/* / Previous MLM State */
@@ -473,6 +473,10 @@ tSirRetStatus lim_start(tpAniSirGlobal pMac)
 
 	if (pMac->lim.gLimSmeState == eLIM_SME_OFFLINE_STATE) {
 		pMac->lim.gLimSmeState = eLIM_SME_IDLE_STATE;
+
+		MTRACE(mac_trace
+			       (pMac, TRACE_CODE_SME_STATE, NO_SESSION,
+			       pMac->lim.gLimSmeState));
 
 		/* By default do not return after first scan match */
 		pMac->lim.gLimReturnAfterFirstMatch = 0;
@@ -1177,7 +1181,8 @@ void pe_register_callbacks_with_wma(tpAniSirGlobal pMac,
 
 	retStatus = wma_register_roaming_callbacks(p_cds_gctx,
 			ready_req->csr_roam_synch_cb,
-			ready_req->pe_roam_synch_cb);
+			ready_req->pe_roam_synch_cb,
+			ready_req->csr_roam_pmkid_req_cb);
 	if (retStatus != QDF_STATUS_SUCCESS)
 		pe_err("Registering roaming callbacks with WMA failed");
 
@@ -2327,6 +2332,8 @@ tMgmtFrmDropReason lim_is_pkt_candidate_for_drop(tpAniSirGlobal pMac,
 	if ((subType == SIR_MAC_MGMT_BEACON) ||
 	    (subType == SIR_MAC_MGMT_PROBE_RSP)) {
 		if (lim_is_beacon_miss_scenario(pMac, pRxPacketInfo)) {
+			MTRACE(mac_trace(pMac, TRACE_CODE_INFO_LOG, 0,
+					 eLOG_NODROP_MISSED_BEACON_SCENARIO));
 			return eMGMT_DROP_NO_DROP;
 		}
 		if (lim_is_system_in_scan_state(pMac))
@@ -2423,7 +2430,6 @@ void lim_update_lost_link_info(tpAniSirGlobal mac, tpPESession session,
 	lim_sys_process_mmh_msg_api(mac, &mmh_msg, ePROT);
 }
 
-#ifdef TRACE_RECORD
 QDF_STATUS pe_acquire_global_lock(tAniSirLim *psPe)
 {
 	QDF_STATUS status = QDF_STATUS_E_INVAL;
@@ -2449,7 +2455,6 @@ QDF_STATUS pe_release_global_lock(tAniSirLim *psPe)
 	}
 	return status;
 }
-#endif
 
 /**
  * lim_mon_init_session() - create PE session for monitor mode operation
